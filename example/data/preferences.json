@@ -1,0 +1,17 @@
+[
+    {
+        "name": "test_a",
+        "type": "int",
+        "defaultValue": 0
+    },
+    {
+        "name": "test_b",
+        "type": "enumerated",
+        "defaultValue": "one",
+        "values": {
+            "0": "zero",
+            "1": "one",
+            "2": "two"
+        }
+    }
+]

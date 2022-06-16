@@ -1,0 +1,8 @@
+builders:
+  preferences_builder:
+    import: "package:libleaf/builder.dart"
+    builder_factories: ["preferencesBuilder"]
+    build_extensions: {".dart": ["preferences.g.dart"]}
+    auto_apply: dependents
+    build_to: cache
+    applies_builders: ["source_gen|combining_builder"]
