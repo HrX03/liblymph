@@ -36,7 +36,7 @@ abstract class TypedPreferencesBackend extends PreferencesBackend {
       throw UnsupportedPreferenceTypeException<T>();
     }
 
-    return value as T;
+    return value as T?;
   }
 
   @override
