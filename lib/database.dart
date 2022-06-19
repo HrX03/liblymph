@@ -12,3 +12,4 @@ export 'package:liblymph/src/database/db/stub.dart';
 export 'package:liblymph/src/database/model/id_list.dart';
 export 'package:liblymph/src/database/model/list_content.dart';
 export 'package:liblymph/src/database/model/reminder_list.dart';
+export 'package:liblymph/src/database/model/unmodifiable_note.dart';
