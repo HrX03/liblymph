@@ -1,5 +1,5 @@
 import 'package:drift/drift.dart';
-import 'package:libleaf/src/database/db/stub.dart';
+import 'package:liblymph/src/database/db/stub.dart';
 
 QueryExecutor constructDb({
   required String databaseFolder,

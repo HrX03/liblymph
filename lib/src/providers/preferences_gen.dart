@@ -34,7 +34,7 @@ class PreferencesBuilder extends Builder {
     generatedLibrary.directives.add(
       Directive(
         (b) => b
-          ..url = "package:libleaf/providers.dart"
+          ..url = "package:liblymph/providers.dart"
           ..type = DirectiveType.import,
       ),
     );

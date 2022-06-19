@@ -1,7 +1,7 @@
 import 'package:drift/drift.dart';
 import 'package:drift/web.dart';
 
-import 'package:libleaf/src/database/db/stub.dart';
+import 'package:liblymph/src/database/db/stub.dart';
 import 'package:path/path.dart' as p;
 
 QueryExecutor constructDb({

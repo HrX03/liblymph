@@ -1,5 +1,5 @@
 import 'package:cryptography/cryptography.dart';
-import 'package:libleaf/src/encryption/base.dart';
+import 'package:liblymph/src/encryption/base.dart';
 
 class DartEncryptionUtils extends EncryptionUtilsBase {
   @override

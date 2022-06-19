@@ -1,4 +1,4 @@
-import 'package:libleaf/providers.dart';
+import 'package:liblymph/providers.dart';
 
 enum AppThemeMode { system, light, dark }
 

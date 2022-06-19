@@ -1,6 +1,6 @@
 import 'package:drift/drift.dart';
-import 'package:libleaf/src/database/dao/folder_helper.dart';
-import 'package:libleaf/src/database/database.dart';
+import 'package:liblymph/src/database/dao/folder_helper.dart';
+import 'package:liblymph/src/database/database.dart';
 
 part 'note_helper.g.dart';
 

@@ -1,5 +1,5 @@
 import 'package:drift/drift.dart';
-import 'package:libleaf/src/database/database.dart';
+import 'package:liblymph/src/database/database.dart';
 
 part 'image_helper.g.dart';
 
