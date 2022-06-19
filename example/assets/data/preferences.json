@@ -1,5 +1,6 @@
 {
     "className": "SharedPrefs",
+    "additionalImports": [],
     "preferences": [
         {
             "name": "master_pass",
@@ -9,7 +10,7 @@
         {
             "name": "theme_mode",
             "type": "enumerated",
-            "nameOverride": "AppThemeMode",
+            "refersToExistingEnum": false,
             "defaultValue": "system",
             "values": {
                 "0": "system",

@@ -1,6 +1,6 @@
 import 'package:liblymph/providers.dart';
 
-enum AppThemeMode { system, light, dark }
+enum ThemeMode { system, light, dark }
 
 class SharedPrefs extends LocalPreferences {
   const SharedPrefs({required LocalPreferencesBackend backend})
@@ -14,21 +14,21 @@ class SharedPrefs extends LocalPreferences {
     backend.setString("master_pass", value);
   }
 
-  AppThemeMode get themeMode {
+  ThemeMode get themeMode {
     int? value = backend.getInt("theme_mode");
     switch (value) {
       case 0:
-        return AppThemeMode.system;
+        return ThemeMode.system;
       case 1:
-        return AppThemeMode.light;
+        return ThemeMode.light;
       case 2:
-        return AppThemeMode.dark;
+        return ThemeMode.dark;
     }
 
-    return AppThemeMode.system;
+    return ThemeMode.system;
   }
 
-  set themeMode(AppThemeMode? value) {
+  set themeMode(ThemeMode? value) {
     if (value == null) {
       backend.setInt("theme_mode", null);
       return;
@@ -37,13 +37,13 @@ class SharedPrefs extends LocalPreferences {
     final int resolvedValue;
 
     switch (value) {
-      case AppThemeMode.system:
+      case ThemeMode.system:
         resolvedValue = 0;
         break;
-      case AppThemeMode.light:
+      case ThemeMode.light:
         resolvedValue = 1;
         break;
-      case AppThemeMode.dark:
+      case ThemeMode.dark:
         resolvedValue = 2;
         break;
     }
