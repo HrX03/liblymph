@@ -23,6 +23,10 @@ abstract class Providers {
   late final Directories directories;
   late final LocalPreferences localPreferences;
   late final AppDatabase database;
+  late final NoteHelper noteHelper;
+  late final TagHelper tagHelper;
+  late final ImageHelper imageHelper;
+  late final FolderHelper folderHelper;
 
   /* bool _locked = false;
 
