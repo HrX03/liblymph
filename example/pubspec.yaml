@@ -13,5 +13,7 @@ dependencies:
 
 dev_dependencies:
   build_runner: ^2.1.11
+  liblymph_gen:
+    git: https://github.com/HrX03/liblymph_gen
   lints: ^2.0.0
   test: ^1.16.0
