@@ -1,13 +1,11 @@
 import 'package:drift/drift.dart';
 import 'package:libleaf/src/database/dao/folder_helper.dart';
 import 'package:libleaf/src/database/database.dart';
-import 'package:libleaf/src/utils/logger.dart';
 
 part 'note_helper.g.dart';
 
 @DriftAccessor(tables: [Notes])
-class NoteHelper extends DatabaseAccessor<AppDatabase>
-    with _$NoteHelperMixin, LoggerProvider {
+class NoteHelper extends DatabaseAccessor<AppDatabase> with _$NoteHelperMixin {
   final AppDatabase db;
 
   NoteHelper(this.db) : super(db);

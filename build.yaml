@@ -2,7 +2,6 @@ builders:
   preferences_builder:
     import: "package:libleaf/builder.dart"
     builder_factories: ["preferencesBuilder"]
-    build_extensions: {".dart": ["preferences.g.dart"]}
-    auto_apply: dependents
-    build_to: cache
-    applies_builders: ["source_gen|combining_builder"]
+    build_extensions: {"^assets/preferences.json": ["lib/generated/preferences.dart"]}
+    auto_apply: root_package
+    build_to: source

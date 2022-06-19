@@ -1,17 +1,8 @@
-import 'package:example/example.dart';
-import 'package:libleaf/app.dart';
+import 'package:example/generated/preferences.dart';
+import 'package:libleaf/providers.dart';
 
 void main(List<String> arguments) {
-  final ExampleLocalPreferences preferences = ExampleLocalPreferences(
+  final SharedPrefs preferences = SharedPrefs(
     backend: ExamplePreferencesBackend(),
   );
-
-  preferences.testA = 0;
-  print(preferences.testA);
-  preferences.testB = TestB.two;
-  print(preferences.testB);
-  preferences.testA = 6;
-  print(preferences.testA);
-  preferences.testB = null;
-  print(preferences.testB);
 }

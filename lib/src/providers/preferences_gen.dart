@@ -1,53 +1,69 @@
+import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
-import 'package:analyzer/dart/element/element.dart';
 import 'package:build/build.dart';
 import 'package:code_builder/code_builder.dart';
-import 'package:glob/glob.dart';
-import 'package:libleaf/src/app/preferences.dart';
+import 'package:dart_style/dart_style.dart';
 import 'package:recase/recase.dart';
-import 'package:source_gen/source_gen.dart' hide LibraryBuilder;
 
-class LocalPreferencesGenerator
-    extends GeneratorForAnnotation<BuildLocalPreferences> {
-  const LocalPreferencesGenerator();
+class PreferencesBuilder extends Builder {
+  static const String defaultClassName = "GeneratedPreferences";
 
-  static const String generatedMixinName = "_\$LocalPreferencesGenerated";
-
-  static const TypeChecker _baseTypeChecker =
-      TypeChecker.fromRuntime(LocalPreferences);
-
-  /* @override
-  Future<String> generate(LibraryReader reader, BuildStep buildStep) async {
-    final Stream<AssetId> assetStream =
-        buildStep.findAssets(Glob("data/preferences.json"));
-    final List<AssetId> assets = await assetStream.toList();
-
-    if (assets.length > 1) {
-      log.severe("Only a single preferences.json file is allowed");
-      return '';
-    }
+  @override
+  FutureOr<void> build(BuildStep buildStep) async {
+    final AssetId outputAsset = AssetId(
+      buildStep.inputId.package,
+      'lib/generated/preferences.dart',
+    );
 
     final DartEmitter emitter = DartEmitter(useNullSafetySyntax: true);
-    final List<Map<String, dynamic>> json;
+    final DartFormatter formatter = DartFormatter();
+    final Map<String, dynamic> json;
 
     try {
       final dynamic parsedJson = jsonDecode(
-        await buildStep.readAsString(assets.single),
+        await buildStep.readAsString(buildStep.inputId),
       );
-      json = (parsedJson as List<dynamic>).cast<Map<String, dynamic>>();
+      json = parsedJson as Map<String, dynamic>;
     } catch (e) {
       log.severe("The referenced file is not valid json");
-      return '';
+      return;
     }
 
     final LibraryBuilder generatedLibrary = LibraryBuilder();
-    final MixinBuilder generatedMixin = MixinBuilder();
-    generatedMixin.name = generatedMixinName;
-    generatedMixin.on = refer('LocalPreferences');
+    generatedLibrary.directives.add(
+      Directive(
+        (b) => b
+          ..url = "package:libleaf/providers.dart"
+          ..type = DirectiveType.import,
+      ),
+    );
 
-    for (final Map<String, dynamic> pref in json) {
+    final String? requestedClassName = json.getOptional<String>("className");
+    final ClassBuilder generatedClass = ClassBuilder();
+    generatedClass.name = requestedClassName ?? defaultClassName;
+    generatedClass.extend = refer('LocalPreferences');
+    generatedClass.constructors.add(
+      Constructor(
+        (b) => b
+          ..constant = true
+          ..optionalParameters.add(
+            Parameter(
+              (b) => b
+                ..required = true
+                ..name = 'backend'
+                ..type = refer('LocalPreferencesBackend')
+                ..named = true,
+            ),
+          )
+          ..initializers.add(const Code('super(backend: backend)')),
+      ),
+    );
+
+    final List<Map<String, dynamic>> preferences =
+        json.getRequiredList<Map<String, dynamic>>("preferences");
+
+    for (final Map<String, dynamic> pref in preferences) {
       final _JsonLocalPreference preference =
           _JsonLocalPreference.fromJson(pref);
 
@@ -59,7 +75,8 @@ class LocalPreferencesGenerator
       final String isNullable = preference.defaultValue == null ? "?" : "";
 
       if (preference.type == _JsonLocalPreferenceType.enumerated) {
-        final String enumName = preference.name.pascalCase;
+        final String enumName =
+            preference.enumNameOverride ?? preference.name.pascalCase;
         final EnumBuilder generatedEnum = EnumBuilder();
         generatedEnum.name = enumName;
         generatedEnum.values.addAll(
@@ -99,122 +116,22 @@ class LocalPreferencesGenerator
       );
       setter.body = Code(setterCode);
 
-      generatedMixin.methods.add(getter.build());
-      generatedMixin.methods.add(setter.build());
+      generatedClass.methods.add(getter.build());
+      generatedClass.methods.add(setter.build());
     }
 
-    generatedLibrary.body.add(generatedMixin.build());
+    generatedLibrary.body.add(generatedClass.build());
 
-    return generatedLibrary.build().accept(emitter).toString();
-  } */
+    buildStep.writeAsString(
+      outputAsset,
+      formatter.format(generatedLibrary.build().accept(emitter).toString()),
+    );
+  }
 
   @override
-  Future<String> generateForAnnotatedElement(
-    Element element,
-    ConstantReader annotation,
-    BuildStep buildStep,
-  ) async {
-    buildStep.findAssets(Glob("data/preferences.json"));
-    if (element.kind != ElementKind.CLASS) {
-      log.severe(
-        "The annotation 'BuildLocalPreferences' can only be applied to classes",
-      );
-      return '';
-    }
-
-    final ClassElement classElement = element as ClassElement;
-
-    if (!classElement.allSupertypes.any(_baseTypeChecker.isExactlyType)) {
-      log.severe(
-        "The annotated class must extend or implement 'LocalPreferences'",
-      );
-      return '';
-    }
-
-    final DartEmitter emitter = DartEmitter(useNullSafetySyntax: true);
-    final String jsonPath = annotation.read('preferenceJsonPath').stringValue;
-    final File jsonFile = File(jsonPath);
-
-    if (!await jsonFile.exists()) {
-      log.severe("The reference file ${jsonFile.absolute} does not exist");
-      return '';
-    }
-
-    final List<Map<String, dynamic>> json;
-
-    try {
-      final dynamic parsedJson = jsonDecode(await jsonFile.readAsString());
-      json = (parsedJson as List<dynamic>).cast<Map<String, dynamic>>();
-    } catch (e) {
-      log.severe("The referenced file is not valid json");
-      return '';
-    }
-
-    final LibraryBuilder generatedLibrary = LibraryBuilder();
-    final MixinBuilder generatedMixin = MixinBuilder();
-    generatedMixin.name = generatedMixinName;
-    generatedMixin.on = refer('LocalPreferences');
-
-    for (final Map<String, dynamic> pref in json) {
-      final _JsonLocalPreference preference =
-          _JsonLocalPreference.fromJson(pref);
-
-      final Reference getterType;
-      final Reference setterType;
-      final String getterCode;
-      final String setterCode;
-
-      final String isNullable = preference.defaultValue == null ? "?" : "";
-
-      if (preference.type == _JsonLocalPreferenceType.enumerated) {
-        final String enumName = preference.name.pascalCase;
-        final EnumBuilder generatedEnum = EnumBuilder();
-        generatedEnum.name = enumName;
-        generatedEnum.values.addAll(
-          preference.enumValues!.values.map(
-            (e) => EnumValue((v) => v..name = e),
-          ),
-        );
-
-        generatedLibrary.body.add(generatedEnum.build());
-
-        getterType = refer(enumName + isNullable);
-        setterType = refer('$enumName?');
-        getterCode = _buildEnumGetter(enumName, preference);
-        setterCode = _buildEnumSetter(enumName, preference);
-      } else {
-        getterType = refer(preference.type.nativeType + isNullable);
-        setterType = refer('${preference.type.nativeType}?');
-        getterCode = _buildSimpleGetter(preference);
-        setterCode = _buildSimpleSetter(preference);
-      }
-
-      final MethodBuilder getter = MethodBuilder();
-      getter.type = MethodType.getter;
-      getter.name = preference.name.camelCase;
-      getter.returns = getterType;
-      getter.body = Code(getterCode);
-
-      final MethodBuilder setter = MethodBuilder();
-      setter.type = MethodType.setter;
-      setter.name = preference.name.camelCase;
-      setter.requiredParameters.add(
-        Parameter(
-          (p) => p
-            ..type = setterType
-            ..name = 'value',
-        ),
-      );
-      setter.body = Code(setterCode);
-
-      generatedMixin.methods.add(getter.build());
-      generatedMixin.methods.add(setter.build());
-    }
-
-    generatedLibrary.body.add(generatedMixin.build());
-
-    return generatedLibrary.build().accept(emitter).toString();
-  }
+  final Map<String, List<String>> buildExtensions = const {
+    "^assets/preferences.json": ["lib/generated/preferences.dart"],
+  };
 }
 
 String _buildSimpleGetter(_JsonLocalPreference preference) {
@@ -292,15 +209,15 @@ class _JsonLocalPreference<T> {
   final T? defaultValue;
   final _JsonLocalPreferenceType type;
   final Map<String, String>? enumValues;
+  final String? enumNameOverride;
 
   const _JsonLocalPreference({
     required this.name,
     required this.defaultValue,
     required this.type,
     this.enumValues,
-  }) : assert(
-          enumValues == null || type == _JsonLocalPreferenceType.enumerated,
-        );
+    this.enumNameOverride,
+  });
 
   static _JsonLocalPreference fromJson(Map<String, dynamic> json) {
     final String name = json.getRequired<String>('name');
@@ -310,10 +227,7 @@ class _JsonLocalPreference<T> {
     switch (stringType) {
       case 'int':
         type = _JsonLocalPreferenceType.int;
-        final int? defaultValue = json.getOptional<int>(
-          'defaultValue',
-          onTypeMismatch: _typeMismatchHandler<int>,
-        );
+        final int? defaultValue = json.getOptional<int>('defaultValue');
         return _JsonLocalPreference<int>(
           name: name,
           defaultValue: defaultValue,
@@ -321,10 +235,7 @@ class _JsonLocalPreference<T> {
         );
       case 'double':
         type = _JsonLocalPreferenceType.double;
-        final double? defaultValue = json.getOptional<double>(
-          'defaultValue',
-          onTypeMismatch: _typeMismatchHandler<double>,
-        );
+        final double? defaultValue = json.getOptional<double>('defaultValue');
         return _JsonLocalPreference<double>(
           name: name,
           defaultValue: defaultValue,
@@ -332,10 +243,7 @@ class _JsonLocalPreference<T> {
         );
       case 'bool':
         type = _JsonLocalPreferenceType.bool;
-        final bool? defaultValue = json.getOptional<bool>(
-          'defaultValue',
-          onTypeMismatch: _typeMismatchHandler<bool>,
-        );
+        final bool? defaultValue = json.getOptional<bool>('defaultValue');
         return _JsonLocalPreference<bool>(
           name: name,
           defaultValue: defaultValue,
@@ -343,21 +251,16 @@ class _JsonLocalPreference<T> {
         );
       case 'string':
         type = _JsonLocalPreferenceType.string;
-        final String? defaultValue = json.getOptional<String>(
-          'defaultValue',
-          onTypeMismatch: _typeMismatchHandler<String>,
-        );
+        final String? defaultValue = json.getOptional<String>('defaultValue');
         return _JsonLocalPreference<String>(
           name: name,
-          defaultValue: defaultValue,
+          defaultValue: defaultValue != null ? jsonEncode(defaultValue) : null,
           type: type,
         );
       case 'stringList':
         type = _JsonLocalPreferenceType.stringList;
-        final List<String>? defaultValue = json.getOptionalList<String>(
-          'defaultValue',
-          onTypeMismatch: _typeMismatchHandler<List<String>>,
-        );
+        final List<String>? defaultValue =
+            json.getOptionalList<String>('defaultValue');
         return _JsonLocalPreference<List<String>>(
           name: name,
           defaultValue: defaultValue,
@@ -365,20 +268,17 @@ class _JsonLocalPreference<T> {
         );
       case 'enumerated':
         type = _JsonLocalPreferenceType.enumerated;
-        final Map<String, String> values = json.getRequiredMap<String, String>(
-          'values',
-          onTypeMismatch: _typeMismatchHandler<Map<String, String>>,
-        );
-        final String? defaultValue = json.getOptional<String>(
-          'defaultValue',
-          onTypeMismatch: _typeMismatchHandler<String>,
-        );
+        final Map<String, String> values =
+            json.getRequiredMap<String, String>('values');
+        final String? defaultValue = json.getOptional<String>('defaultValue');
+        final String? nameOverride = json.getOptional<String>('nameOverride');
 
         return _JsonLocalPreference<String>(
           name: name,
           defaultValue: defaultValue,
           type: type,
           enumValues: values,
+          enumNameOverride: nameOverride,
         );
       default:
         throw BadValueException(
@@ -388,10 +288,10 @@ class _JsonLocalPreference<T> {
         );
     }
   }
+}
 
-  static Never _typeMismatchHandler<T>(dynamic value) {
-    throw BadTypeException<T>('defaultValue', value);
-  }
+Never _typeMismatchHandler<T>(dynamic value) {
+  throw BadTypeException<T>('defaultValue', value);
 }
 
 enum _JsonLocalPreferenceType {
@@ -456,12 +356,10 @@ class BadTypeException<T> implements Exception {
   }
 }
 
-typedef _OnTypeMismatch = Never Function(dynamic value)?;
+typedef _OnTypeMismatch = Never Function(dynamic value);
 
 extension on Map<String, dynamic> {
-  static Never _defaultTypeMismatch(dynamic value) {
-    throw TypeError();
-  }
+  static const _OnTypeMismatch _defaultTypeMismatch = _typeMismatchHandler;
 
   T getRequired<T>(
     String key, {
@@ -488,6 +386,16 @@ extension on Map<String, dynamic> {
       key,
       onTypeMismatch: onTypeMismatch,
     ).cast<K, V>();
+  }
+
+  List<T> getRequiredList<T>(
+    String key, {
+    _OnTypeMismatch? onTypeMismatch,
+  }) {
+    return getRequired<List<dynamic>>(
+      key,
+      onTypeMismatch: onTypeMismatch,
+    ).cast<T>();
   }
 
   T? getOptional<T>(String key, {_OnTypeMismatch? onTypeMismatch}) {

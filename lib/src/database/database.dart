@@ -3,8 +3,6 @@
 import 'dart:convert';
 
 import 'package:drift/drift.dart';
-import 'package:libleaf/src/app/directories.dart';
-import 'package:libleaf/src/app/providers.dart';
 import 'package:libleaf/src/database/dao/folder_helper.dart';
 import 'package:libleaf/src/database/dao/image_helper.dart';
 import 'package:libleaf/src/database/dao/note_helper.dart';
@@ -14,6 +12,8 @@ import 'package:libleaf/src/database/model/id_list.dart';
 import 'package:libleaf/src/database/model/list_content.dart';
 import 'package:libleaf/src/database/model/reminder_list.dart';
 import 'package:libleaf/src/database/model/saved_image.dart';
+import 'package:libleaf/src/providers/directories.dart';
+import 'package:libleaf/src/providers/providers.dart';
 import 'package:libleaf/src/utils/utils.dart';
 
 part 'database.g.dart';
