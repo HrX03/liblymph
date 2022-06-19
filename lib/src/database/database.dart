@@ -99,16 +99,16 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(QueryExecutor e) : super(e);
 
   factory AppDatabase.defaultOpen({
-    required String databaseFolder,
+    required AsyncStringCallback databaseFolder,
     required String databaseName,
-    required DatabaseKeyCallback getDatabaseKey,
+    required AsyncStringCallback getDatabaseKey,
     bool logStatements = false,
   }) {
     return AppDatabase(
       constructDb(
         databaseFolder: databaseFolder,
         databaseName: databaseName,
-        getDatabaseKey: getDatabaseKey,
+        databaseKey: getDatabaseKey,
         logStatements: logStatements,
       ),
     );

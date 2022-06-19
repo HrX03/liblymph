@@ -2,9 +2,9 @@ import 'package:drift/drift.dart';
 import 'package:liblymph/src/database/db/stub.dart';
 
 QueryExecutor constructDb({
-  required String databaseFolder,
+  required AsyncStringCallback databaseFolder,
   required String databaseName,
-  required DatabaseKeyCallback getDatabaseKey,
+  required AsyncStringCallback databaseKey,
   bool logStatements = false,
   OnPreOpenDatabase? onPreOpenDatabase,
 }) {
