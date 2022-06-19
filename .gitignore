@@ -11,6 +11,3 @@ pubspec.lock
 
 # VSCode stuff
 .vscode
-
-# Generated files should be generated on each clone at least
-**/*.g.dart
