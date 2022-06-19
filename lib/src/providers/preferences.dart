@@ -14,6 +14,7 @@ abstract class PreferencesBackend {
 
 abstract class TypedPreferencesBackend extends PreferencesBackend {
   const TypedPreferencesBackend();
+
   @override
   T? read<T>(String key) {
     // Small hack to check for T actual type

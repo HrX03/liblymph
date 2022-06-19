@@ -2,20 +2,24 @@ import 'package:liblymph/providers.dart';
 
 enum ThemeMode { system, light, dark }
 
-class SharedPrefs extends LocalPreferences {
-  const SharedPrefs({required LocalPreferencesBackend backend})
+class SharedPrefs extends LocalPreferences<TypedPreferencesBackend> {
+  const SharedPrefs({required TypedPreferencesBackend backend})
       : super(backend: backend);
 
   String get masterPass {
-    return backend.getString("master_pass") ?? "";
+    return backend.read<String>("master_pass") ?? "";
   }
 
   set masterPass(String? value) {
-    backend.setString("master_pass", value);
+    if (value != null) {
+      backend.write<String>("master_pass", value);
+    } else {
+      backend.delete("master_pass");
+    }
   }
 
   ThemeMode get themeMode {
-    int? value = backend.getInt("theme_mode");
+    final int? value = backend.read<int>("theme_mode");
     switch (value) {
       case 0:
         return ThemeMode.system;
@@ -30,7 +34,7 @@ class SharedPrefs extends LocalPreferences {
 
   set themeMode(ThemeMode? value) {
     if (value == null) {
-      backend.setInt("theme_mode", null);
+      backend.delete("theme_mode");
       return;
     }
 
@@ -48,151 +52,223 @@ class SharedPrefs extends LocalPreferences {
         break;
     }
 
-    backend.setInt("theme_mode", resolvedValue);
+    backend.write<int>("theme_mode", resolvedValue);
   }
 
   String get lightTheme {
-    return backend.getString("light_theme") ?? "light";
+    return backend.read<String>("light_theme") ?? "light";
   }
 
   set lightTheme(String? value) {
-    backend.setString("light_theme", value);
+    if (value != null) {
+      backend.write<String>("light_theme", value);
+    } else {
+      backend.delete("light_theme");
+    }
   }
 
   String get darkTheme {
-    return backend.getString("dark_theme") ?? "dark";
+    return backend.read<String>("dark_theme") ?? "dark";
   }
 
   set darkTheme(String? value) {
-    backend.setString("dark_theme", value);
+    if (value != null) {
+      backend.write<String>("dark_theme", value);
+    } else {
+      backend.delete("dark_theme");
+    }
   }
 
   int? get customAccent {
-    return backend.getInt("custom_accent");
+    return backend.read<int>("custom_accent");
   }
 
   set customAccent(int? value) {
-    backend.setInt("custom_accent", value);
+    if (value != null) {
+      backend.write<int>("custom_accent", value);
+    } else {
+      backend.delete("custom_accent");
+    }
   }
 
   bool get useAmoled {
-    return backend.getBool("use_amoled") ?? false;
+    return backend.read<bool>("use_amoled") ?? false;
   }
 
   set useAmoled(bool? value) {
-    backend.setBool("use_amoled", value);
+    if (value != null) {
+      backend.write<bool>("use_amoled", value);
+    } else {
+      backend.delete("use_amoled");
+    }
   }
 
   bool get useGrid {
-    return backend.getBool("use_grid") ?? false;
+    return backend.read<bool>("use_grid") ?? false;
   }
 
   set useGrid(bool? value) {
-    backend.setBool("use_grid", value);
+    if (value != null) {
+      backend.write<bool>("use_grid", value);
+    } else {
+      backend.delete("use_grid");
+    }
   }
 
   bool get useCustomAccent {
-    return backend.getBool("use_custom_accent") ?? false;
+    return backend.read<bool>("use_custom_accent") ?? false;
   }
 
   set useCustomAccent(bool? value) {
-    backend.setBool("use_custom_accent", value);
+    if (value != null) {
+      backend.write<bool>("use_custom_accent", value);
+    } else {
+      backend.delete("use_custom_accent");
+    }
   }
 
   bool get welcomePageSeenV2 {
-    return backend.getBool("welcome_page_seen_v2") ?? false;
+    return backend.read<bool>("welcome_page_seen_v2") ?? false;
   }
 
   set welcomePageSeenV2(bool? value) {
-    backend.setBool("welcome_page_seen_v2", value);
+    if (value != null) {
+      backend.write<bool>("welcome_page_seen_v2", value);
+    } else {
+      backend.delete("welcome_page_seen_v2");
+    }
   }
 
   bool get migrationInfoShown {
-    return backend.getBool("migration_info_shown") ?? false;
+    return backend.read<bool>("migration_info_shown") ?? false;
   }
 
   set migrationInfoShown(bool? value) {
-    backend.setBool("migration_info_shown", value);
+    if (value != null) {
+      backend.write<bool>("migration_info_shown", value);
+    } else {
+      backend.delete("migration_info_shown");
+    }
   }
 
   bool get protectBackups {
-    return backend.getBool("protect_backups") ?? false;
+    return backend.read<bool>("protect_backups") ?? false;
   }
 
   set protectBackups(bool? value) {
-    backend.setBool("protect_backups", value);
+    if (value != null) {
+      backend.write<bool>("protect_backups", value);
+    } else {
+      backend.delete("protect_backups");
+    }
   }
 
   String get apiUrl {
-    return backend.getString("api_url") ??
+    return backend.read<String>("api_url") ??
         "https://sync.potatoproject.co/api/v2";
   }
 
   set apiUrl(String? value) {
-    backend.setString("api_url", value);
+    if (value != null) {
+      backend.write<String>("api_url", value);
+    } else {
+      backend.delete("api_url");
+    }
   }
 
   String? get accessToken {
-    return backend.getString("access_token");
+    return backend.read<String>("access_token");
   }
 
   set accessToken(String? value) {
-    backend.setString("access_token", value);
+    if (value != null) {
+      backend.write<String>("access_token", value);
+    } else {
+      backend.delete("access_token");
+    }
   }
 
   String? get refreshToken {
-    return backend.getString("refresh_token");
+    return backend.read<String>("refresh_token");
   }
 
   set refreshToken(String? value) {
-    backend.setString("refresh_token", value);
+    if (value != null) {
+      backend.write<String>("refresh_token", value);
+    } else {
+      backend.delete("refresh_token");
+    }
   }
 
   String? get username {
-    return backend.getString("username");
+    return backend.read<String>("username");
   }
 
   set username(String? value) {
-    backend.setString("username", value);
+    if (value != null) {
+      backend.write<String>("username", value);
+    } else {
+      backend.delete("username");
+    }
   }
 
   String? get email {
-    return backend.getString("email");
+    return backend.read<String>("email");
   }
 
   set email(String? value) {
-    backend.setString("email", value);
+    if (value != null) {
+      backend.write<String>("email", value);
+    } else {
+      backend.delete("email");
+    }
   }
 
   String? get avatarUrl {
-    return backend.getString("avatar_url");
+    return backend.read<String>("avatar_url");
   }
 
   set avatarUrl(String? value) {
-    backend.setString("avatar_url", value);
+    if (value != null) {
+      backend.write<String>("avatar_url", value);
+    } else {
+      backend.delete("avatar_url");
+    }
   }
 
   List<String> get downloadedImages {
-    return backend.getStringList("downloaded_images") ?? [];
+    return backend.read<List<String>>("downloaded_images") ?? [];
   }
 
   set downloadedImages(List<String>? value) {
-    backend.setStringList("downloaded_images", value);
+    if (value != null) {
+      backend.write<List<String>>("downloaded_images", value);
+    } else {
+      backend.delete("downloaded_images");
+    }
   }
 
   List<String> get deletedImages {
-    return backend.getStringList("deleted_images") ?? [];
+    return backend.read<List<String>>("deleted_images") ?? [];
   }
 
   set deletedImages(List<String>? value) {
-    backend.setStringList("deleted_images", value);
+    if (value != null) {
+      backend.write<List<String>>("deleted_images", value);
+    } else {
+      backend.delete("deleted_images");
+    }
   }
 
   int get lastUpdated {
-    return backend.getInt("last_updated") ?? 0;
+    return backend.read<int>("last_updated") ?? 0;
   }
 
   set lastUpdated(int? value) {
-    backend.setInt("last_updated", value);
+    if (value != null) {
+      backend.write<int>("last_updated", value);
+    } else {
+      backend.delete("last_updated");
+    }
   }
 }
