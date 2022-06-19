@@ -1,75 +1,78 @@
-abstract class LocalPreferences {
-  final LocalPreferencesBackend backend;
+abstract class LocalPreferences<T extends PreferencesBackend> {
+  final T backend;
 
   const LocalPreferences({required this.backend});
 }
 
-abstract class LocalPreferencesBackend {
-  const LocalPreferencesBackend();
+abstract class PreferencesBackend {
+  const PreferencesBackend();
 
-  int? getInt(String pref);
-  double? getDouble(String pref);
-  bool? getBool(String pref);
-  String? getString(String pref);
-  List<String>? getStringList(String pref);
-
-  void setInt(String pref, int? value);
-  void setDouble(String pref, double? value);
-  void setBool(String pref, bool? value);
-  void setString(String pref, String? value);
-  void setStringList(String pref, List<String>? value);
+  T? read<T>(String key);
+  void write<T>(String key, T value);
+  void delete(String key);
 }
 
-class ExamplePreferencesBackend implements LocalPreferencesBackend {
-  final Map<String, dynamic> _store = {};
-
+abstract class TypedPreferencesBackend extends PreferencesBackend {
+  const TypedPreferencesBackend();
   @override
-  bool? getBool(String pref) {
-    return _store[pref] as bool?;
+  T? read<T>(String key) {
+    // Small hack to check for T actual type
+    final List<T> tValue = <T>[];
+
+    final Object? value;
+
+    if (tValue is List<int>) {
+      value = getInt(key);
+    } else if (tValue is List<double>) {
+      value = getDouble(key);
+    } else if (tValue is List<bool>) {
+      value = getBool(key);
+    } else if (tValue is List<String>) {
+      value = getString(key);
+    } else if (tValue is List<List<String>>) {
+      value = getStringList(key);
+    } else {
+      throw UnsupportedPreferenceTypeException<T>();
+    }
+
+    return value as T;
   }
 
   @override
-  double? getDouble(String pref) {
-    return _store[pref] as double?;
+  void write<T>(String key, T value) {
+    if (value is int) {
+      return setInt(key, value);
+    } else if (value is double) {
+      return setDouble(key, value);
+    } else if (value is bool) {
+      return setBool(key, value);
+    } else if (value is String) {
+      return setString(key, value);
+    } else if (value is List<String>) {
+      return setStringList(key, value);
+    } else {
+      throw UnsupportedPreferenceTypeException<T>();
+    }
   }
 
-  @override
-  int? getInt(String pref) {
-    return _store[pref] as int?;
-  }
+  int? getInt(String key);
+  double? getDouble(String key);
+  bool? getBool(String key);
+  String? getString(String key);
+  List<String>? getStringList(String key);
+
+  void setInt(String key, int value);
+  void setDouble(String key, double value);
+  void setBool(String key, bool value);
+  void setString(String key, String value);
+  void setStringList(String key, List<String> value);
+}
+
+class UnsupportedPreferenceTypeException<T> implements Exception {
+  const UnsupportedPreferenceTypeException();
 
   @override
-  String? getString(String pref) {
-    return _store[pref] as String?;
-  }
-
-  @override
-  List<String>? getStringList(String pref) {
-    return (_store[pref] as List<dynamic>?)?.cast<String>();
-  }
-
-  @override
-  void setBool(String pref, bool? value) {
-    _store[pref] = value;
-  }
-
-  @override
-  void setDouble(String pref, double? value) {
-    _store[pref] = value;
-  }
-
-  @override
-  void setInt(String pref, int? value) {
-    _store[pref] = value;
-  }
-
-  @override
-  void setString(String pref, String? value) {
-    _store[pref] = value;
-  }
-
-  @override
-  void setStringList(String pref, List<String>? value) {
-    _store[pref] = value;
+  String toString() {
+    return "The $T type isn' supported, expected int, double, bool, String or List<String>";
   }
 }
