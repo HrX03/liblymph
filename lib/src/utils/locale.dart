@@ -1,5 +1,16 @@
 import 'package:yatl/yatl.dart';
 
+class LocalesTranslationsLoader extends TranslationsLoader {
+  final Locales locales;
+
+  const LocalesTranslationsLoader(this.locales);
+
+  @override
+  Future<Map<String, dynamic>> load(Locale locale) async {
+    return locales.data[locale.toString().replaceAll("-", "_")] ?? {};
+  }
+}
+
 abstract class Locales {
   final List<LocaleData> locales;
 
