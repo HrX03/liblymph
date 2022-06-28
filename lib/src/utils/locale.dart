@@ -7,7 +7,7 @@ class LocalesTranslationsLoader extends TranslationsLoader {
 
   @override
   Future<Map<String, dynamic>> load(Locale locale) async {
-    return locales.data[locale.toString().replaceAll("-", "_")] ?? {};
+    return locales.data[locale.toString()] ?? {};
   }
 }
 
